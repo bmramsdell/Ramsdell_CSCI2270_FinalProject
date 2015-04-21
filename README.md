@@ -1,11 +1,10 @@
 # Ramsdell_CSCI2270_FinalProject
-This is a test! Hello World! 
 
 Phase 1 Requirements:
 
 Project Summary:
 
-For our project we will create a set of algorithms that will allow us to create different types of strategic football teams based on the player traits added into the program. For example, if we wanted a strong offensive team, the algorithm would find, compare, and arrange the best players from the set of all players. The program will take in players from a text file, but will also have the ability to add new players. When the team has been created it will assign positions to those with the correct attributes. The user will be able to change the positions of anyone on the team if they so choose. 
+For our project we will create a set of algorithms that will allow users to play a simple game of chess. We say a simple game of chess because our program will not include functions for some of the more intricate rules of the game. For example, our functions will be built to model the basic moves of each chess piece and will not include complex rules such as castling. The program will allow two teams to play, team one and team two. At each turn of the game, players will be asked where they would like to move. Our program will be built to check if the move is elligible, and if so allow the players to proceed with the game. As with a normal game of chess, the game will end when one team gets a checkmate. 
 
 How to Run:
 
@@ -21,14 +20,14 @@ This project will not require the user to have any specific system requirements 
 
 Group Members:
 
-Group members for the CSCI 2270 final project will be Zachary Withrow (zachary.withrow537@gmail.com) and Blaine Ramsdell (blaine.ramsdell@colorado.edu)
+Group members for the CSCI 2270 final project will be Zachary Withrow (zachary.withrow537@gmail.com) and Blaine Ramsdell (blaine.ramsdell@colorado.edu).
 
 Contributors:
 
 Contributors for the CSCI 2270 final project may include, but are not limited to:
 Matthew Wright (matthew.wright@colorado.edu), 
 Alexander Swindell (alexander.swindell@colorado.edu), and
-Brandon Knutson (brandon.knutson@colorado.edu)
+Brandon Knutson (brandon.knutson@colorado.edu).
 
 Open Issues/Bugs:
 
