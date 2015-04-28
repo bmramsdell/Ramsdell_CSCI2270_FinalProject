@@ -942,7 +942,7 @@ bool Chess::Pawn(std::string Team, boardSpace* currentSpace , int teamCount)
         //Check if up is clear. If so, set bool to true.
         if(currentSpace->up != NULL)
         {
-            if(currentSpace->upLeft->name == "_"|| (currentSpace->up->team != Team && currentSpace->up->occupied == true))
+            if(currentSpace->up->name == "_"|| (currentSpace->up->team != Team && currentSpace->up->occupied == true))
             {
                 upClear = true;
             }
