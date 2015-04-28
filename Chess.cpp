@@ -1,14 +1,8 @@
-// Zach Withrow and Blaine Ramsdell
-// April 26, 2015
-// Final Project: Phase 2
-
 #include "Chess.h"
 #include <string>
 #include <iostream>
 #include <queue>
-
 using namespace std;
-
 /* Constructor Comment Block
 Function Prototype:
 Chess();
@@ -34,6 +28,7 @@ Chess::Chess()
     beginning = NULL;
     ending = NULL;
 }
+
 
 /* Destructor Comment Block
 Function Prototype:
@@ -97,18 +92,39 @@ boardSpace* Chess::newSpace(std::string placement)
     return newSpot;
 }
 
+/* createBoard function
+
+Function Prototype:
+void Chess::createBoard(std::string, std::string);
+
+Function Description:
+This method is written to illustrate all possible moves that a pawn can make. The function allows
+pawns to move one space forward (at all times) and attack on diagonal moves.
+
+Example:
+string team1 = "Zach";
+string team2 = "Blaine";
+Chess *NewGame = new Chess();
+NewGame->createBoard(team1, team2);
+
+Pre-condition: This function requires two pre-conditions to be met. Both are the names of the teams that will
+be playing. This will also be used to set each one of the chess pieces to one of the teams.
+requires two additional pointers to be set: beginning and ending. These are set to NULL inside the constructor.
+
+Post-condition: Once this function has run through, the pawn will either have moved forward one space or it will
+attack an enemy piece in a diagonal move. Pointers and struct attributes will be updated after each successive
+move.
+*/
 void Chess::createBoard(std::string Team1, std::string Team2)
 {
+
     int index = 2;
     beginning = newSpace("0");
     ending = newSpace("65");
-
     boardSpace* temp = new boardSpace;
-
     temp = newSpace("a1");
     beginning->right = temp;
     temp->left = beginning;
-
     boardSpace* temp2 = new boardSpace;
     for(int j = 2; j < 65; j++)
     {
@@ -152,33 +168,29 @@ void Chess::createBoard(std::string Team1, std::string Team2)
             std::string b =std::to_string(j-56);
             temp2 = newSpace("h"+b);
         }
-
         index++;
         temp->right = temp2;
         temp2->left = temp;
         temp = temp2;
     }
-
     temp->right = ending;
     ending->left = temp;
-
     boardSpace* temp3 = beginning->right;
     boardSpace* DOWN = beginning->right;
-
     boardSpace* DOWNRIGHT = new boardSpace;
     boardSpace* DOWNLEFT = new boardSpace;
 
-    //Set up the down left, down right, and down spots
+    //set up the down left, down right, and down spots;
+
     while(DOWN->boardSpot != "b1")
     {
         DOWN = DOWN->right;
     }
-
     DOWNLEFT = DOWN->left;
     DOWNRIGHT = DOWN->right;
-
     while(temp3->boardSpot != "h1")
     {
+        //cout<<1<<endl;
         temp3->down = DOWN;
         if(temp3->boardSpot != "a8" && temp3->boardSpot != "b8" && temp3->boardSpot != "c8" && temp3->boardSpot != "d8" &&
            temp3->boardSpot != "e8" && temp3->boardSpot != "f8" && temp3->boardSpot != "g8")
@@ -190,21 +202,19 @@ void Chess::createBoard(std::string Team1, std::string Team2)
         {
             temp3->downLeft = DOWNLEFT;
         }
-
         temp3 = temp3->right;
         DOWN = DOWN->right;
         DOWNRIGHT= DOWNRIGHT->right;
         DOWNLEFT = DOWNLEFT->right;
     }
 
-    //Set up the right, up left, and up spots
-    temp3 = beginning->right;
+    //setup of up right, up left, and up
 
+    temp3 = beginning->right;
     while(temp3->boardSpot != "b1")
     {
         temp3 = temp3->right;
     }
-
     boardSpace* UP = beginning->right;
     boardSpace* UPRIGHT = UP->right;
     boardSpace* UPLEFT = UP->left;
@@ -222,33 +232,29 @@ void Chess::createBoard(std::string Team1, std::string Team2)
         {
             temp3->upLeft = UPLEFT;
         }
-
         temp3 = temp3->right;
         UP = UP->right;
         UPRIGHT= UPRIGHT->right;
         UPLEFT = UPLEFT->right;
     }
-
+    //set the horizontal boarders
     temp = beginning->right;
     temp = temp->down;
-
     while(temp != NULL)
     {
         temp->left = NULL;
         temp = temp->down;
     }
-
     temp = ending->left;
     temp = temp->up;
-
     while(temp != NULL)
     {
         temp->right = NULL;
         temp = temp->up;
     }
 
+    //set Team 2 pieces
     temp = beginning->right;
-
     while(temp != NULL)
     {
         temp->team = Team2;
@@ -264,20 +270,22 @@ void Chess::createBoard(std::string Team1, std::string Team2)
         if(temp->boardSpot == "a3" || temp->boardSpot == "a6")
         {
             temp->name = "B";
+            temp->team = Team2;
         }
         if(temp->boardSpot == "a4")
         {
             temp->name = "Q";
+            temp->team = Team2;
         }
         if(temp->boardSpot == "a5")
         {
             temp->name = "K";
+            temp->team = Team2;
         }
         temp = temp->right;
     }
-
+    //set Team 2 pawns
     temp = beginning->right->down;
-
     while(temp != NULL)
     {
         temp->occupied = true;
@@ -286,8 +294,8 @@ void Chess::createBoard(std::string Team1, std::string Team2)
         temp = temp->right;
     }
 
+    //set Team 1 pieces
     temp = ending->left;
-
     while(temp != NULL)
     {
         temp->occupied = true;
@@ -314,9 +322,8 @@ void Chess::createBoard(std::string Team1, std::string Team2)
         }
         temp = temp->left;
     }
-
+    //set Team 1 pawns
     temp = ending->left->up;
-
     while(temp != NULL)
     {
         temp->occupied = true;
@@ -324,8 +331,10 @@ void Chess::createBoard(std::string Team1, std::string Team2)
         temp->name = "1";
         temp = temp->left;
     }
-}
 
+
+
+}
 /* team1Board Comment Block
 Function Prototype:
 void Chess::team1Board();
@@ -345,7 +354,7 @@ Post-condition: Once this function has run through, the function will display th
 of view. It will also inform the player's whose turn it is and will later switch to team two's board once the first
 player has completed their turn.
 */
-void Chess::team1Board()
+void Chess::team1Board(std::string Team, std::string Team2)
 {
     //Display the key telling the player's how their pieces are displayed on the board.
     cout<<endl<<"K & 9 = King, Q & 8 = Queen, B & 7 = Bishop"<<endl;
@@ -389,6 +398,7 @@ void Chess::team1Board()
     //Start from the top left corner of the board.
     boardSpace *temp = beginning->right;
     int j = 0;
+    cout<<"            Team 2: "<<Team2<<endl;
     cout<<"        ";//A
     cout<<"    ";
 
@@ -446,6 +456,7 @@ void Chess::team1Board()
     }
 
     cout<<"    "<<endl;
+    cout<<"            Team 1: "<<Team<<endl;
 }
 
 /* team2Board Comment Block
@@ -467,7 +478,7 @@ Post-condition: Once this function has run through, the function will display th
 of view. It will also inform the player's whose turn it is and will later switch back to team one's board once the second
 player has completed their turn.
 */
-void Chess::team2Board()
+void Chess::team2Board(std::string Team,std::string Team2)
 {
     //Display the key telling the player's how their pieces are displayed on the board.
     cout<<endl<<"K & 9 = King, Q & 8 = Queen, B & 7 = Bishop"<<endl;
@@ -511,6 +522,7 @@ void Chess::team2Board()
     //Start from ending since the board has flipped.
     boardSpace *temp = ending->left;
     int j = 0;
+    cout<<"            Team 1: "<<Team<<endl;
     cout<<"        ";//A
     cout<<"    ";
 
@@ -568,14 +580,41 @@ void Chess::team2Board()
     }
 
     cout<<"    "<<endl;
+    cout<<"            Team 2: "<<Team2<<endl;
 }
+
+/* createBoard function
+
+Function Prototype:
+void Chess::createBoard(std::string, std::string);
+
+Function Description:
+This method is written to illustrate all possible moves that a pawn can make. The function allows
+pawns to move one space forward (at all times) and attack on diagonal moves.
+
+Example:
+string team1 = "Zach";
+string team2 = "Blaine";
+Chess *NewGame = new Chess();
+NewGame->createBoard(team1, team2);
+
+Pre-condition: This function requires two pre-conditions to be met. Both are the names of the teams that will
+be playing. This will also be used to set each one of the chess pieces to one of the teams.
+requires two additional pointers to be set: beginning and ending. These are set to NULL inside the constructor.
+
+Post-condition: Once this function has run through, the pawn will either have moved forward one space or it will
+attack an enemy piece in a diagonal move. Pointers and struct attributes will be updated after each successive
+move.
+*/
 
 void Chess::PlayerTurn(std::string Team1, std::string Team2)
 {
+    /*
+        ZACH
+    */
     int teamCounter = 1;
     std::string Winner;
     std::string answer;
-
     while(teamCounter != 3)
     {
         if(teamCounter == 1)
@@ -583,21 +622,21 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
             bool turnIsOver = false;
             while(turnIsOver == false)
             {
-            team1Board();
-
+            team1Board(Team1,Team2);
+            cout<<endl<<"It is "<<Team1<<"'s turn."<<endl;
             cout<<"What piece do you want to move: ";
             cin >> ws;
             getline(cin, answer);
             //cout<<SearchSpot(answer)->team<<endl;
-
             boardSpace* temp = SearchSpot(answer);
-            //cout<<temp->name<<" "<<temp->team<<" "<<temp->occupied<<endl;
 
+            //cout<<temp->name<<" "<<temp->team<<" "<<temp->occupied<<endl;
             if(temp != NULL && temp->occupied != false && temp->team  == Team1)
             {
                 if(temp->name == "1")
                 {
                     //cout<<"Pawn"<<endl;
+
                     turnIsOver = Pawn(Team1, temp, 1);
                     if(checkForKing("K"))
                     {
@@ -611,6 +650,7 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
                 else if(temp->name == "5")
                 {
                     //cout<<"Rook"<<endl;
+
                     turnIsOver = Rook(Team1, temp, 1);
                     if(checkForKing("K"))
                     {
@@ -620,11 +660,11 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
                     {
                         teamCounter = 3;
                     }
+
                 }
                 else if(temp->name == "6")
                 {
-                    //cout<<"Knight"<<endl;
-                    Knight(Team1, temp, 1);
+                    turnIsOver = Knight(Team1, temp, 1);
                     if(checkForKing("K"))
                     {
                         teamCounter = 2;
@@ -633,11 +673,11 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
                     {
                         teamCounter = 3;
                     }
+
                 }
                 else if(temp->name == "7")
                 {
-                    //cout<<"Bishop"<<endl;
-                    Bishop(Team1, temp, 1);
+                    turnIsOver = Bishop(Team1, temp, 1);
                     if(checkForKing("K"))
                     {
                         teamCounter = 2;
@@ -646,11 +686,11 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
                     {
                         teamCounter = 3;
                     }
+
                 }
                 else if(temp->name == "8")
                 {
-                    //cout<<"Queen"<<endl;
-                    Queen(Team1, temp, 1);
+                    turnIsOver = Queen(Team1, temp, 1);
                     if(checkForKing("K"))
                     {
                         teamCounter = 2;
@@ -659,11 +699,11 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
                     {
                         teamCounter = 3;
                     }
+
                 }
                 else if(temp->name == "9")
                 {
-                    //cout<<"King"<<endl;
-                    King(Team1, temp, 1);
+                    turnIsOver = King(Team1, temp, 1);
                     if(checkForKing("K"))
                     {
                         teamCounter = 2;
@@ -677,35 +717,33 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
                 {
                     cout<<"Not a valid choice!"<<endl<<"What piece do you want to move: ";
                 }
-            }
-            }
-        }
 
+            }
+            }
+
+        }
         if(teamCounter == 3)
         {
             Winner = Team1;
             break;
         }
-
         if(teamCounter == 2)
         {
             bool turnIsOver = false;
             while(turnIsOver == false)
             {
-            team2Board();
-
+            team2Board(Team1,Team2);
+            cout<<endl<<"It is "<<Team2<<"'s turn."<<endl;
             cout<<"What piece do you want to move: ";
             cin >> ws;
             getline(cin, answer);
-
             boardSpace* temp = SearchSpot(answer);
-
             if(temp != NULL && temp->occupied != false && temp->team  == Team2)
             {
                 if(temp->name == "P")
                 {
-                    //cout<<"Pawn"<<endl;
                     turnIsOver =Pawn(Team2, temp, 2);
+
                     if(checkForKing("9"))
                     {
                         teamCounter = 1;
@@ -717,7 +755,6 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
                 }
                 else if(temp->name == "R")
                 {
-                    //cout<<"Rook"<<endl;
                     turnIsOver = Rook(Team2, temp, 2);
                     if(checkForKing("9"))
                     {
@@ -730,8 +767,7 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
                 }
                 else if(temp->name == "N")
                 {
-                    //cout<<"Knight"<<endl;
-                    Knight(Team2, temp, 2);
+                    turnIsOver = Knight(Team2, temp, 2);
                     if(checkForKing("9"))
                     {
                         teamCounter = 1;
@@ -743,8 +779,7 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
                 }
                 else if(temp->name == "B")
                 {
-                    //cout<<"Bishop"<<endl;
-                    Bishop(Team2, temp, 2);
+                    turnIsOver = Bishop(Team2, temp, 2);
                     if(checkForKing("9"))
                     {
                         teamCounter = 1;
@@ -756,8 +791,7 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
                 }
                 else if(temp->name == "Q")
                 {
-                    //cout<<"Queen"<<endl;
-                    Queen(Team2, temp, 2);
+                    turnIsOver = Queen(Team2, temp, 2);
                     if(checkForKing("9"))
                     {
                         teamCounter = 1;
@@ -769,8 +803,7 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
                 }
                 else if(temp->name == "K")
                 {
-                    //cout<<"King"<<endl;
-                    King(Team2, temp, 2);
+                    turnIsOver = King(Team2, temp, 2);
                     if(checkForKing("9"))
                     {
                         teamCounter = 1;
@@ -786,8 +819,8 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
                 }
             }
             }
-        }
 
+        }
         if(teamCounter == 3)
         {
             Winner = Team2;
@@ -798,37 +831,61 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
     cout<<"The Winner is "<<Winner<<"!";
 }
 
+/* SearchSpot Comment Block
+Function Prototype:
+boardSpace* Chess::SearchSpot(std::string SPOT);
+
+Function Description:
+This function is written to search through the board and find the piece that the player wants to move. It will pass this board space
+into the appropriate piece function.
+
+Example:
+Chess *NewGame = new Chess();
+NewGame->SearchSpot(b1);
+
+Pre-condition: This function requires one pre-condition. It will take in the string of the spot where the player piece resides.However,
+as with most of our functions it requires that the beginning and ending pointers be set to NULL. This is done in the constructor.
+
+Post-condition: Once this function has run through, the function will return the boardSpace of the spot where the player piece resides.
+It will pass this boardSpace into the piece function of the player's choosing and proceed with the appropriate moves.
+*/
 boardSpace* Chess::SearchSpot(std::string SPOT)
 {
+    //Initialize checkers.
     std::string tempWord;
     bool theEnd = false;
 
     boardSpace* temp = beginning->right;
 
+    //Start the search process
     while(temp != NULL)
     {
         tempWord = temp->boardSpot;
 
+        //Check the first character of the input.
         if(SPOT[0] == tempWord[0])
         {
             while(temp != NULL)
             {
+                //If you have found the spot, return it.
                 if(temp->boardSpot == SPOT)
                 {
                     return temp;
                 }
+                //Otherwise keep moving right.
                 else
                 {
                     temp = temp->right;
                 }
             }
-
+            //Set the bool if it was not found.
             if(temp == NULL)
             {
                 theEnd = true;
             }
         }
 
+        //Jump out of the while loop and tell the user that the space was not found.
         if(theEnd == true)
         {
             break;
@@ -839,21 +896,45 @@ boardSpace* Chess::SearchSpot(std::string SPOT)
         }
     }
     cout<<"Invalid Space"<<endl;
+    //Return the space. To be used later.
     return temp;
 }
 
+/* checkForKing Comment Block
+Function Prototype:
+bool Chess::checkForKing(std::string KING);
+
+Function Description:
+This function is written to search through the board and see if there is a king still on the board who belong's to the opposite team. If there
+is a king on the board, then the game will proceed. However, if a king is not found on the board, then the game will end and declare the
+appropriate winner. This is essentially the check mate function.
+
+Example:
+Chess *NewGame = new Chess();
+NewGame->checkForKing(K);
+
+Pre-condition: This function requires one pre-condition. It will take in the string, which will be the first character of the piece that the
+player chooses to move. As with most of our functions, it requires that the beginning and ending pointers be set to NULL. This is done
+in the constructor.
+
+Post-condition: Once this function has run through, the function will return a bool that says whether or not the opposite team's king is on
+the board. It will pass this bool into the player turn function which will determine if the game should end on that player's turn or not.
+*/
 bool Chess::checkForKing(std::string KING)
 {
+    //Set initializers.
     bool found = false;
     boardSpace*temp = beginning->right;
     queue<boardSpace*> A;
 
+    //Search down the board while pushing onto the queue.
     while(temp != NULL)
     {
         A.push(temp);
         temp = temp->down;
     }
 
+    //Search inside the queue to see if the King is found. If not, keep searching.
     while(!A.empty())
     {
         boardSpace *X = A.front();
@@ -878,25 +959,9 @@ bool Chess::checkForKing(std::string KING)
         }
     }
 
-    //cout<<found<<endl;
+    //Return the resulting bool.
     return found;
 }
-
-bool Chess::Bishop(string Team, boardSpace *currentSpace, int teamCount)
-{
-
-}
-
-bool Chess::Rook(string Team, boardSpace *currentSpace, int teamCount)
-{
-
-}
-
-bool Chess::Queen(string Team, boardSpace *currentSpace, int teamCount)
-{
-
-}
-
 /* Pawn Comment Block
 Function Prototype:
 bool Chess::Pawn(string, boardSpace*, int);
@@ -1183,313 +1248,258 @@ bool Chess::Pawn(std::string Team, boardSpace* currentSpace , int teamCount)
         }
     }
 }
+/* Rook Piece function
 
-/* King Comment Block
 Function Prototype:
-bool Chess::King(string, boardSpace*, int);
+void Chess::createBoard(std::string Team, boardSpace* currentSpace , int teamCount);
 
 Function Description:
-This function is written to illustrate all possible moves that a king can make. The function allows
-pawns to move one space forward, backward, left, right, and diagonal (in all directions). It also allows
-the king to attack if an enemy piece is within range.
+This function prompts the user for the available spots the Rook can move. The function checks the preset pointers
+of left, right, up, and down for surrounding open spots or enemy pieces. Based on the output of the check, it will
+prompt the user for the allowed moves. It will ask for how many spaces the piece should move, and if the there is
+an object in the way the user will be brought back to choose a piece.
 
 Example:
-Chess *NewGame = new Chess();
-NewGame->King(Team1, inSpot, 1);
 
-Pre-condition: This function requires three pre-conditions to be met. The first, the input string name is
-the name of the team that is playing in that turn. The second, the input boardSpace pointer is the space
-on the board where the chess piece resides. This will also be used to check all possible moves for
-this piece. The third, the input integer is the counter telling us which team is in play. Each chess piece function
-requires two additional pointers to be set: beginning and ending. These are set to NULL inside the constructor.
+NewGame->Rook(team1, (b2)spot, 1);
 
-Post-condition: Once this function has run through, the king will either have moved one space in all directions or it
-will attack an enemy piece if it is within range. Pointers and struct attributes will be updated after each successive
-move.
+Pre-condition:
+The Pre-conditions for this function are the name of the team whose turn it is, the pointer to the spot that the
+piece resides, and the number assigned to the team during the createboard function.
+
+Post-condition: This function will return a boolean whether or not the move was completed or not.
 */
-bool Chess::King(std::string Team, boardSpace* currentSpace , int teamCount)
+bool Chess::Rook(std::string Team, boardSpace* currentSpace , int teamCount)
 {
-    //Set initial bool checks to false. These will be used to check if a space is clear or not.
     bool upClear = false;
-    bool upRightClear = false;
-    bool upLeftClear = false;
-
-    bool leftClear = false;
     bool rightClear = false;
-
+    bool leftClear = false;
     bool downClear = false;
-    bool downRightClear = false;
-    bool downLeftClear = false;
 
-    //Bool to tell program whether or not to switch player turn.
     bool turnComplete = true;
-
-    //If team one is in play, do the following:
+    //for team 1 check the available spots
     if(teamCount == 1)
     {
-        //Check if up is clear. If so, set bool to true.
         if(currentSpace->up != NULL)
         {
-            if(currentSpace->upLeft->name == "_"|| (currentSpace->up->team != Team && currentSpace->up->occupied == true))
+            if(currentSpace->up->name == "_" || (currentSpace->up->team != Team && currentSpace->up->occupied == true))
             {
                 upClear = true;
             }
         }
-        //Check if down is clear. If so, set bool to true.
-        if(currentSpace->down != NULL)
-        {
-            if(currentSpace->down->name == "_"|| (currentSpace->down->team != Team && currentSpace->down->occupied == true))
-            {
-                downClear = true;
-            }
-        }
-        //Check if up and to the left is clear. If so, set bool to true.
-        if(currentSpace->upLeft != NULL)
-        {
-            if(currentSpace->upLeft->name == "_" || (currentSpace->upLeft->team != Team && currentSpace->upLeft->occupied == true))
-            {
-                upLeftClear = true;
-            }
-        }
-        //Check if up and to the right is clear. If so, set bool to true.
-        if(currentSpace->upRight != NULL)
-        {
-            if(currentSpace->upRight->name == "_" || (currentSpace->upRight->team != Team && currentSpace->upRight->occupied == true))
-            {
-                upRightClear = true;
-            }
-        }
-        //Check if right is clear. If so, set bool to true.
-        if(currentSpace->right != NULL)
-        {
-            if(currentSpace->right->name == "_" || (currentSpace->right->team != Team && currentSpace->right->occupied == true))
-            {
-                rightClear = true;
-            }
-        }
-        //Check if left is clear. If so, set bool to true.
-        if(currentSpace->left != NULL)
+        if(currentSpace->left != NULL && currentSpace->left != beginning)
         {
             if(currentSpace->left->name == "_" || (currentSpace->left->team != Team && currentSpace->left->occupied == true))
             {
                 leftClear = true;
             }
         }
-        //Check if down and to the left is clear. If so, set bool to true.
-        if(currentSpace->downLeft != NULL)
+        if(currentSpace->right != NULL && currentSpace->right != ending)
         {
-            if(currentSpace->downLeft->name == "_" || (currentSpace->downLeft->team != Team && currentSpace->downLeft->occupied == true))
+            if(currentSpace->right->name == "_" || (currentSpace->right->team != Team && currentSpace->right->occupied == true))
             {
-                downLeftClear = true;
+                rightClear = true;
             }
         }
-        //Check if down and to the right is clear. If so, set bool to true.
-        if(currentSpace->downRight != NULL)
+        if(currentSpace->down != NULL)
         {
-            if(currentSpace->downRight->name == "_" || (currentSpace->downRight->team != Team && currentSpace->downRight->occupied == true))
+            if(currentSpace->down->name == "_" || (currentSpace->down->team != Team && currentSpace->down->occupied == true))
             {
-                downRightClear = true;
+                downClear = true;
             }
         }
-        //If all spots are not clear, inform user.
-        if(leftClear == false && upLeftClear == false && upClear == false && upRightClear == false && rightClear == false && downRightClear == false && downClear == false && downLeftClear == false)
+        if(upClear == false && downClear == false && rightClear == false && leftClear == false)
         {
             cout<<"Piece has nowhere to move."<<endl;
             turnComplete = false;
             return turnComplete;
         }
 
-        string Input;
-        cout<<"Where would you like to move your King?"<<endl;
 
-        //Options to tell the user where they are able to move. Indicated by arrows.
+        string Input;
+        cout<<"Where would you like to move your Rook?"<<endl;
+
         cout<<"You may move";
-        if(leftClear == true)
+        //cout available moves
+        if(leftClear == true && currentSpace->left != beginning)
         {
             cout<<" ⇐,";
-        }
-        if(upLeftClear == true)
-        {
-            cout<<" ⇖,";
         }
         if(upClear == true)
         {
             cout<<" ⇑,";
         }
-        if(upRightClear == true)
-        {
-            cout<<" ⇗,";
-        }
-        if(rightClear == true)
+        if(rightClear == true && currentSpace->right != ending)
         {
             cout<<" ⇒,";
         }
-        if(downRightClear == true)
-        {
-            cout<<" ⇘,";
-        }
         if(downClear == true)
         {
-            cout<<" ⇓,";
+            cout<<" or ⇓.";
         }
-        if(downLeftClear == true)
-        {
-            cout<<" or ⇙.";
-        }
-
-        //Take in the user move input using number pad directions.
         cout<<endl<<"Press";
-        if(leftClear == true)
+        if(leftClear == true && currentSpace->left != beginning)
         {
             cout<<" 4 for ⇐,";
-        }
-        if(upLeftClear == true)
-        {
-            cout<<" 7 for ⇖,";
         }
         if(upClear == true)
         {
             cout<<" 8 for ⇑,";
         }
-        if(upRightClear == true)
-        {
-            cout<<" 9 for ⇗,";
-        }
-        if(rightClear == true)
+        if(rightClear == true && currentSpace->right != ending)
         {
             cout<<" 6 for ⇒,";
         }
-        if(downRightClear == true)
-        {
-            cout<<" 3 for ⇘,";
-        }
         if(downClear == true)
         {
-            cout<<" 2 for ⇓,";
+            cout<<" or 2 for ⇓.";
         }
-        if(downLeftClear == true)
-        {
-            cout<<" 1 for ⇙.";
-        }
-
+        //takes in direction
         cout<<endl;
         cin>>ws;
         getline(cin, Input);
         int input = stoi(Input);
+        cout<<"How many spaces do you what to move? : ";
+        //takes in number of spaces
+        string Input2;
+        cin>>ws;
+        getline(cin, Input2);
+        int input2 = stoi(Input2);
+        boardSpace* MoveTo = new boardSpace;
+        MoveTo = currentSpace;
+        bool inWay = false;
+        if(input == 8 && upClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->up;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->up;
+            }
 
-        //If the user wants to move to the left, do the following:
-        if(input == 4 && leftClear == 1)
-        {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->left->name = currentSpace->name;
-            currentSpace->left->occupied = true;
-            currentSpace->left->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
         }
-        //If the user wants to move up and to the left, do the following:
-        else if(input == 7 && upLeftClear == 1)
+        else if(input == 4 && leftClear == 1)
         {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->upLeft->name = currentSpace->name;
-            currentSpace->upLeft->occupied = true;
-            currentSpace->upLeft->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->left;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->left;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
         }
-        //If the user wants to move up, do the following:
-        else if(input == 8 && upClear == 1)
-        {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->up->name = currentSpace->name;
-            currentSpace->up->occupied = true;
-            currentSpace->up->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
-        }
-        //If the user wants to move up and to the right, do the following:
-        else if(input == 9 && upRightClear == 1)
-        {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->upRight->name = currentSpace->name;
-            currentSpace->upRight->occupied = true;
-            currentSpace->upRight->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
-        }
-        //If the user wants to move to the right, do the following:
         else if(input == 6 && rightClear == 1)
         {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->right->name = currentSpace->name;
-            currentSpace->right->occupied = true;
-            currentSpace->right->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->right;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->right;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
         }
-        //If the user wants to move down and to the right, do the following:
-        else if(input == 3 && downRightClear == 1)
-        {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->downRight->name = currentSpace->name;
-            currentSpace->downRight->occupied = true;
-            currentSpace->downRight->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
-        }
-        //If the user wants to move down, do the following:
         else if(input == 2 && downClear == 1)
         {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->down->name = currentSpace->name;
-            currentSpace->down->occupied = true;
-            currentSpace->down->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->down;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->down;
+            }
+
+            if(inWay == false && MoveTo->team != Team)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
         }
-        //If the user wants to move down and to the left, do the following:
-        else if(input == 1 && downLeftClear == 1)
-        {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->downLeft->name = currentSpace->name;
-            currentSpace->downLeft->occupied = true;
-            currentSpace->downLeft->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
-        }
-        //If the input is not correct, inform user.
         else
         {
             cout<<"Not a valid move."<<endl;
@@ -1498,76 +1508,37 @@ bool Chess::King(std::string Team, boardSpace* currentSpace , int teamCount)
         }
     }
 
-    //If team two is in play, do the following:
     if(teamCount == 2)
     {
-        //Board has flipped, so directions are now opposite.
-        //Check if up is clear. If so, set down to true.
         if(currentSpace->up != NULL)
         {
-            if(currentSpace->upLeft->name == "_"|| (currentSpace->up->team != Team && currentSpace->up->occupied == true))
+            if(currentSpace->up->name == "_" || (currentSpace->up->team != Team && currentSpace->up->occupied == true))
             {
                 downClear = true;
             }
         }
-        //Check if down is clear. If so, set up to true.
-        if(currentSpace->down != NULL)
-        {
-            if(currentSpace->down->name == "_"|| (currentSpace->down->team != Team && currentSpace->down->occupied == true))
-            {
-                upClear = true;
-            }
-        }
-        //Check if up and to the left is clear. If so, set down and to the right to true.
-        if(currentSpace->upLeft != NULL)
-        {
-            if(currentSpace->upLeft->name == "_" || (currentSpace->upLeft->team != Team && currentSpace->upLeft->occupied == true))
-            {
-                downRightClear = true;
-            }
-        }
-        //Check if up and to the right is clear. If so, set down and to the left to true.
-        if(currentSpace->upRight != NULL)
-        {
-            if(currentSpace->upRight->name == "_" || (currentSpace->upRight->team != Team && currentSpace->upRight->occupied == true))
-            {
-                downLeftClear = true;
-            }
-        }
-        //Check if right is clear. If so, set left to true.
-        if(currentSpace->right != NULL)
-        {
-            if(currentSpace->right->name == "_" || (currentSpace->right->team != Team && currentSpace->right->occupied == true))
-            {
-                leftClear = true;
-            }
-        }
-        //Check if left is clear. If so, set right to true.
-        if(currentSpace->left != NULL)
+        if(currentSpace->left != NULL && currentSpace->left != beginning)
         {
             if(currentSpace->left->name == "_" || (currentSpace->left->team != Team && currentSpace->left->occupied == true))
             {
                 rightClear = true;
             }
         }
-        //Check if down and to the left is clear. If so, set up and to the right to true.
-        if(currentSpace->downLeft != NULL)
+        if(currentSpace->right != NULL && currentSpace->right != ending)
         {
-            if(currentSpace->downLeft->name == "_" || (currentSpace->downLeft->team != Team && currentSpace->downLeft->occupied == true))
+            if(currentSpace->right->name == "_" || (currentSpace->right->team != Team && currentSpace->right->occupied == true))
             {
-                upRightClear = true;
+                leftClear = true;
             }
         }
-        //Check if down and to the right is clear. If so, set up and to the left to true.
-        if(currentSpace->downRight != NULL)
+        if(currentSpace->down != NULL)
         {
-            if(currentSpace->downRight->name == "_" || (currentSpace->downRight->team != Team && currentSpace->downRight->occupied == true))
+            if(currentSpace->down->name == "_" || (currentSpace->down->team != Team && currentSpace->down->occupied == true))
             {
-                upLeftClear = true;
+                upClear = true;
             }
         }
-        //If all spots are not clear, inform user.
-        if(leftClear == false && upLeftClear == false && upClear == false && upRightClear == false && rightClear == false && downRightClear == false && downClear == false && downLeftClear == false)
+        if(upClear == false && downClear == false && rightClear == false && leftClear == false )
         {
             cout<<"Piece has nowhere to move."<<endl;
             turnComplete = false;
@@ -1575,196 +1546,186 @@ bool Chess::King(std::string Team, boardSpace* currentSpace , int teamCount)
         }
 
         string Input;
-        cout<<"Where would you like to move your King?"<<endl;
+        cout<<"Where would you like to move your Rook?"<<endl;
 
-        //Options to tell the user where they are able to move. Indicated by arrows.
         cout<<"You may move";
-        if(leftClear == true)
+        if(leftClear == true && currentSpace->right != beginning)
         {
             cout<<" ⇐,";
-        }
-        if(upLeftClear == true)
-        {
-            cout<<" ⇖,";
         }
         if(upClear == true)
         {
             cout<<" ⇑,";
         }
-        if(upRightClear == true)
-        {
-            cout<<" ⇗,";
-        }
-        if(rightClear == true)
+        if(rightClear == true && currentSpace->left != ending)
         {
             cout<<" ⇒,";
         }
-        if(downRightClear == true)
-        {
-            cout<<" ⇘,";
-        }
         if(downClear == true)
         {
-            cout<<" ⇓,";
+            cout<<" or ⇓.";
         }
-        if(downLeftClear == true)
-        {
-            cout<<" or ⇙.";
-        }
-
-        //Take in the user move input using number pad directions.
         cout<<endl<<"Press";
-        if(leftClear == true)
+        if(leftClear == true && currentSpace->right != beginning)
         {
             cout<<" 4 for ⇐,";
-        }
-        if(upLeftClear == true)
-        {
-            cout<<" 7 for ⇖,";
         }
         if(upClear == true)
         {
             cout<<" 8 for ⇑,";
         }
-        if(upRightClear == true)
-        {
-            cout<<" 9 for ⇗,";
-        }
-        if(rightClear == true)
+        if(rightClear == true && currentSpace->left != ending)
         {
             cout<<" 6 for ⇒,";
         }
-        if(downRightClear == true)
-        {
-            cout<<" 3 for ⇘,";
-        }
         if(downClear == true)
         {
-            cout<<" 2 for ⇓,";
+            cout<<" or 2 for ⇓.";
         }
-        if(downLeftClear == true)
-        {
-            cout<<" 1 for ⇙.";
-        }
-
         cout<<endl;
         cin>>ws;
         getline(cin, Input);
         int input = stoi(Input);
+        cout<<"How many spaces do you what to move? : ";
+        string Input2;
+        cin>>ws;
+        getline(cin, Input2);
+        int input2 = stoi(Input2);
+        boardSpace* MoveTo = new boardSpace;
+        MoveTo = currentSpace;
+        bool inWay = false;
+        if(input == 8 && upClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->down;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->down;
+            }
 
-        //If the user wants to move to the left, do the following:
-        if(input == 4 && leftClear == 1)
-        {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->right->name = currentSpace->name;
-            currentSpace->right->occupied = true;
-            currentSpace->right->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
         }
-        //If the user wants to move up and to the left, do the following:
-        else if(input == 7 && upLeftClear == 1)
+        else if(input == 4 && leftClear == 1)
         {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->downRight->name = currentSpace->name;
-            currentSpace->downRight->occupied = true;
-            currentSpace->downRight->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->right;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->right;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
         }
-        //If the user wants to move up, do the following:
-        else if(input == 8 && upClear == 1)
-        {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->down->name = currentSpace->name;
-            currentSpace->down->occupied = true;
-            currentSpace->down->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
-        }
-        //If the user wants to move up and to the right, do the following:
-        else if(input == 9 && upRightClear == 1)
-        {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->downLeft->name = currentSpace->name;
-            currentSpace->downLeft->occupied = true;
-            currentSpace->downLeft->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
-        }
-        //If the user wants to move to the right, do the following:
         else if(input == 6 && rightClear == 1)
         {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->left->name = currentSpace->name;
-            currentSpace->left->occupied = true;
-            currentSpace->left->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->left;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->left;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
         }
-        //If the user wants to move down and to the right, do the following:
-        else if(input == 3 && downRightClear == 1)
-        {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->upLeft->name = currentSpace->name;
-            currentSpace->upLeft->occupied = true;
-            currentSpace->upLeft->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
-        }
-        //If the user wants to move down, do the following:
         else if(input == 2 && downClear == 1)
         {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->up->name = currentSpace->name;
-            currentSpace->up->occupied = true;
-            currentSpace->up->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->up;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->up;
+            }
+
+            if(inWay == false && MoveTo->team != Team)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
         }
-        //If the user wants to move down and to the left, do the following:
-        else if(input == 1 && downLeftClear == 1)
-        {
-            //Move the piece to the new spot and set the appropriate attributes.
-            currentSpace->upRight->name = currentSpace->name;
-            currentSpace->upRight->occupied = true;
-            currentSpace->upRight->team = currentSpace->team;
-            //Set the old space to NULL.
-            currentSpace->name = "_";
-            currentSpace->occupied = false;
-            currentSpace->team = "NULL";
-            //End turn.
-            return turnComplete;
-        }
-        //If the input is not correct, inform user.
         else
         {
             cout<<"Not a valid move."<<endl;
@@ -1773,7 +1734,6 @@ bool Chess::King(std::string Team, boardSpace* currentSpace , int teamCount)
         }
     }
 }
-
 /* Knight Comment Block
 Function Prototype:
 bool Chess::Knight(string, boardSpace*, int);
@@ -2523,11 +2483,1982 @@ bool Chess::Knight(std::string Team, boardSpace* currentSpace , int teamCount)
         }
     }
 }
+/* Bishop Piece function
 
+Function Prototype:
+void Chess::Bishop(std::string Team, boardSpace* currentSpace , int teamCount);
+
+Function Description:
+This function prompts the user for the available spots the Bishop can move. The function checks the preset pointers
+of upleft, upright, downright, and downleft for surrounding open spots or enemy pieces. Based on the output of the check, it will
+prompt the user for the allowed moves. It will ask for how many spaces the piece should move, and if the there is
+an object in the way the user will be brought back to choose a piece.
+
+Example:
+
+NewGame->Bishop(team1, (b2)spot, 1);
+
+Pre-condition:
+The Pre-conditions for this function are the name of the team whose turn it is, the pointer to the spot that the
+piece resides, and the number assigned to the team during the createboard function.
+
+Post-condition: This function will return a boolean whether or not the move was completed or not.
+*/
+bool Chess::Bishop(std::string Team, boardSpace* currentSpace , int teamCount)
+{
+    bool upRightClear = false;
+    bool upLeftClear = false;
+    bool downRightClear = false;
+    bool downLeftClear = false;
+
+    bool turnComplete = true;
+
+    if(teamCount == 1)
+    {
+        if(currentSpace->upLeft != NULL)
+        {
+            if(currentSpace->upLeft->name == "_" || (currentSpace->upLeft->team != Team && currentSpace->upLeft->occupied == true))
+            {
+                upLeftClear = true;
+            }
+        }
+        if(currentSpace->upRight != NULL)
+        {
+            if(currentSpace->upRight->name == "_" || (currentSpace->upRight->team != Team && currentSpace->upRight->occupied == true))
+            {
+                upRightClear = true;
+            }
+        }
+        if(currentSpace->downRight != NULL)
+        {
+            if(currentSpace->downRight->name == "_" || (currentSpace->downRight->team != Team && currentSpace->downRight->occupied == true))
+            {
+                downRightClear = true;
+            }
+        }
+        if(currentSpace->downLeft != NULL)
+        {
+            if(currentSpace->downLeft->name == "_" || (currentSpace->downLeft->team != Team && currentSpace->downLeft->occupied == true))
+            {
+                downLeftClear = true;
+            }
+        }
+        if(upRightClear == false && upLeftClear == false && downRightClear == false && downLeftClear == false)
+        {
+            cout<<"Piece has nowhere to move."<<endl;
+            turnComplete = false;
+            return turnComplete;
+        }
+
+
+        string Input;
+        cout<<"Where would you like to move your Bishop?"<<endl;
+
+        cout<<"You may move";
+        if(upLeftClear == true)
+        {
+            cout<<" ⇖,";
+        }
+        if(upRightClear == true)
+        {
+            cout<<" ⇗,";
+        }
+        if(downRightClear == true)
+        {
+            cout<<" ⇘,";
+        }
+        if(downLeftClear == true)
+        {
+            cout<<" or ⇙.";
+        }
+        cout<<endl<<"Press";
+        if(upLeftClear == true)
+        {
+            cout<<" 7 for ⇖,";
+        }
+        if(upRightClear == true)
+        {
+            cout<<" 9 for ⇗,";
+        }
+        if(downRightClear == true)
+        {
+            cout<<" 3 for ⇘,";
+        }
+        if(downLeftClear == true)
+        {
+            cout<<" or 1 for ⇙.";
+        }
+        cout<<endl;
+        cin>>ws;
+        getline(cin, Input);
+        int input = stoi(Input);
+        cout<<"How many spaces do you what to move? : ";
+        string Input2;
+        cin>>ws;
+        getline(cin, Input2);
+        int input2 = stoi(Input2);
+        boardSpace* MoveTo = new boardSpace;
+        MoveTo = currentSpace;
+        bool inWay = false;
+        if(input == 7 && upLeftClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->upLeft;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->upLeft;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 9 && upRightClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->upRight;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->upRight;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 6 && downLeftClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->downLeft;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->downLeft;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 2 && downRightClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->downRight;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->downRight;
+            }
+
+            if(inWay == false && MoveTo->team != Team)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else
+        {
+            cout<<"Not a valid move."<<endl;
+            turnComplete = false;
+            return turnComplete;
+        }
+    }
+
+    if(teamCount == 2)
+    {
+        if(currentSpace->upLeft != NULL)
+        {
+            if(currentSpace->upLeft->name == "_" || (currentSpace->upLeft->team != Team && currentSpace->upLeft->occupied == true))
+            {
+                downRightClear = true;
+            }
+        }
+        if(currentSpace->upRight != NULL)
+        {
+            if(currentSpace->upRight->name == "_" || (currentSpace->upRight->team != Team && currentSpace->upRight->occupied == true))
+            {
+                downLeftClear = true;
+            }
+        }
+        if(currentSpace->downRight != NULL)
+        {
+            if(currentSpace->downRight->name == "_" || (currentSpace->downRight->team != Team && currentSpace->downRight->occupied == true))
+            {
+                upLeftClear = true;
+            }
+        }
+        if(currentSpace->downLeft != NULL)
+        {
+            if(currentSpace->downLeft->name == "_" || (currentSpace->downLeft->team != Team && currentSpace->downLeft->occupied == true))
+            {
+                upRightClear = true;
+            }
+        }
+        if(upRightClear == false && upLeftClear == false && downRightClear == false && downLeftClear == false)
+        {
+            cout<<"Piece has nowhere to move."<<endl;
+            turnComplete = false;
+            return turnComplete;
+        }
+
+
+        string Input;
+        cout<<"Where would you like to move your Rook?"<<endl;
+
+        cout<<"You may move";
+        if(upLeftClear == true)
+        {
+            cout<<" ⇖,";
+        }
+        if(upRightClear == true)
+        {
+            cout<<" ⇗,";
+        }
+        if(downRightClear == true)
+        {
+            cout<<" ⇘,";
+        }
+        if(downLeftClear == true)
+        {
+            cout<<" or ⇙.";
+        }
+        cout<<endl<<"Press";
+        if(upLeftClear == true)
+        {
+            cout<<" 7 for ⇖,";
+        }
+        if(upRightClear == true)
+        {
+            cout<<" 9 for ⇗,";
+        }
+        if(downRightClear == true)
+        {
+            cout<<" 3 for ⇘,";
+        }
+        if(downLeftClear == true)
+        {
+            cout<<" or 1 for ⇙.";
+        }
+        cout<<endl;
+        cin>>ws;
+        getline(cin, Input);
+        int input = stoi(Input);
+        cout<<"How many spaces do you what to move? : ";
+        string Input2;
+        cin>>ws;
+        getline(cin, Input2);
+        int input2 = stoi(Input2);
+        boardSpace* MoveTo = new boardSpace;
+        MoveTo = currentSpace;
+        bool inWay = false;
+        if(input == 7 && upLeftClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->downRight;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->downRight;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 9 && upRightClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->downLeft;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->downLeft;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 6 && downLeftClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->upRight;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->upRight;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 2 && downRightClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->upLeft;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->upLeft;
+            }
+
+            if(inWay == false && MoveTo->team != Team)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else
+        {
+            cout<<"Not a valid move."<<endl;
+            turnComplete = false;
+            return turnComplete;
+        }
+    }
+
+}
+/* Queen Piece function
+
+Function Prototype:
+void Chess::Queen(std::string Team, boardSpace* currentSpace , int teamCount);
+
+Function Description:
+This function prompts the user for the available spots the Queen can move. The function checks the preset pointers
+of left, upleft, up, upright,right, downright, down, and downleft for surrounding open spots or enemy pieces. Based on the output of the check, it will
+prompt the user for the allowed moves. It will ask for how many spaces the piece should move, and if the there is
+an object in the way the user will be brought back to choose a piece.
+
+Example:
+
+NewGame->Queen(team1, (b2)spot, 1);
+
+Pre-condition:
+The Pre-conditions for this function are the name of the team whose turn it is, the pointer to the spot that the
+piece resides, and the number assigned to the team during the createboard function.
+
+Post-condition: This function will return a boolean whether or not the move was completed or not.
+*/
+bool Chess::Queen(std::string Team, boardSpace* currentSpace , int teamCount)
+{
+    bool upRightClear = false;
+    bool upLeftClear = false;
+    bool downRightClear = false;
+    bool downLeftClear = false;
+    bool upClear = false;
+    bool rightClear = false;
+    bool leftClear = false;
+    bool downClear = false;
+
+    bool turnComplete = true;
+
+    if(teamCount == 1)
+    {
+        if(currentSpace->up != NULL)
+        {
+            if(currentSpace->up->name == "_" || (currentSpace->up->team != Team && currentSpace->up->occupied == true))
+            {
+                upClear = true;
+            }
+        }
+        if(currentSpace->left != NULL)
+        {
+            if(currentSpace->left->name == "_" || (currentSpace->left->team != Team && currentSpace->left->occupied == true))
+            {
+                leftClear = true;
+            }
+        }
+        if(currentSpace->right != NULL)
+        {
+            if(currentSpace->right->name == "_" || (currentSpace->right->team != Team && currentSpace->right->occupied == true))
+            {
+                rightClear = true;
+            }
+        }
+        if(currentSpace->down != NULL)
+        {
+            if(currentSpace->down->name == "_" || (currentSpace->down->team != Team && currentSpace->down->occupied == true))
+            {
+                downClear = true;
+            }
+        }
+        if(currentSpace->upLeft != NULL)
+        {
+            if(currentSpace->upLeft->name == "_" || (currentSpace->upLeft->team != Team && currentSpace->upLeft->occupied == true))
+            {
+                upLeftClear = true;
+            }
+        }
+        if(currentSpace->upRight != NULL)
+        {
+            if(currentSpace->upRight->name == "_" || (currentSpace->upRight->team != Team && currentSpace->upRight->occupied == true))
+            {
+                upRightClear = true;
+            }
+        }
+        if(currentSpace->downRight != NULL)
+        {
+            if(currentSpace->downRight->name == "_" || (currentSpace->downRight->team != Team && currentSpace->downRight->occupied == true))
+            {
+                downRightClear = true;
+            }
+        }
+        if(currentSpace->downLeft != NULL)
+        {
+            if(currentSpace->downLeft->name == "_" || (currentSpace->downLeft->team != Team && currentSpace->downLeft->occupied == true))
+            {
+                downLeftClear = true;
+            }
+        }
+        if(upRightClear == false && upLeftClear == false && downRightClear == false && downLeftClear == false
+           && upClear == false && downClear == false && rightClear == false && leftClear == false)
+        {
+            cout<<"Piece has nowhere to move."<<endl;
+            turnComplete = false;
+            return turnComplete;
+        }
+
+
+        string Input;
+        cout<<"Where would you like to move your Queen?"<<endl;
+
+        cout<<"You may move";
+        if(leftClear == true && currentSpace->left != beginning)
+        {
+            cout<<" ⇐,";
+        }
+        if(upLeftClear == true)
+        {
+            cout<<" ⇖,";
+        }
+        if(upClear == true)
+        {
+            cout<<" ⇑,";
+        }
+        if(upRightClear == true)
+        {
+            cout<<" ⇗,";
+        }
+        if(rightClear == true && currentSpace->left != ending)
+        {
+            cout<<" ⇒,";
+        }
+        if(downRightClear == true)
+        {
+            cout<<" ⇘,";
+        }
+        if(downClear == true)
+        {
+            cout<<" ⇓,";
+        }
+        if(downLeftClear == true)
+        {
+            cout<<" or ⇙.";
+        }
+
+        cout<<endl<<"Press";
+
+        if(leftClear == true && currentSpace->left != beginning)
+        {
+            cout<<" 4 for ⇐,";
+        }
+        if(upLeftClear == true)
+        {
+            cout<<" 7 for ⇖,";
+        }
+        if(upClear == true)
+        {
+            cout<<" 8 for ⇑,";
+        }
+        if(upRightClear == true)
+        {
+            cout<<" 9 for ⇗,";
+        }
+        if(rightClear == true && currentSpace->left != ending)
+        {
+            cout<<" 6 for ⇒,";
+        }
+        if(downRightClear == true)
+        {
+            cout<<" 3 for ⇘,";
+        }
+        if(downClear == true)
+        {
+            cout<<" 2 for ⇓,";
+        }
+        if(downLeftClear == true)
+        {
+            cout<<" or 1 for ⇙.";
+        }
+        cout<<endl;
+        cin>>ws;
+        getline(cin, Input);
+        int input = stoi(Input);
+        cout<<"How many spaces do you what to move? : ";
+        string Input2;
+        cin>>ws;
+        getline(cin, Input2);
+        int input2 = stoi(Input2);
+        boardSpace* MoveTo = new boardSpace;
+        MoveTo = currentSpace;
+        bool inWay = false;
+        if(input == 8 && upClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->up;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->up;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 4 && leftClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->left;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->left;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 6 && rightClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->right;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->right;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 2 && downClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->down;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->down;
+            }
+
+            if(inWay == false && MoveTo->team != Team)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        if(input == 7 && upLeftClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->upLeft;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->upLeft;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 9 && upRightClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->upRight;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->upRight;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 6 && downLeftClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->downLeft;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->downLeft;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 2 && downRightClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->downRight;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->downRight;
+            }
+
+            if(inWay == false && MoveTo->team != Team)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else
+        {
+            cout<<"Not a valid move."<<endl;
+            turnComplete = false;
+            return turnComplete;
+        }
+    }
+
+    if(teamCount == 2)
+    {
+        if(currentSpace->up != NULL)
+        {
+            if(currentSpace->up->name == "_" || (currentSpace->up->team != Team && currentSpace->up->occupied == true))
+            {
+                downClear = true;
+            }
+        }
+        if(currentSpace->left != NULL)
+        {
+            if(currentSpace->left->name == "_" || (currentSpace->left->team != Team && currentSpace->left->occupied == true))
+            {
+                rightClear = true;
+            }
+        }
+        if(currentSpace->right != NULL)
+        {
+            if(currentSpace->right->name == "_" || (currentSpace->right->team != Team && currentSpace->right->occupied == true))
+            {
+                leftClear = true;
+            }
+        }
+        if(currentSpace->down != NULL)
+        {
+            if(currentSpace->down->name == "_" || (currentSpace->down->team != Team && currentSpace->down->occupied == true))
+            {
+                upClear = true;
+            }
+        }
+        if(currentSpace->upLeft != NULL)
+        {
+            if(currentSpace->upLeft->name == "_" || (currentSpace->upLeft->team != Team && currentSpace->upLeft->occupied == true))
+            {
+                downRightClear = true;
+            }
+        }
+        if(currentSpace->upRight != NULL)
+        {
+            if(currentSpace->upRight->name == "_" || (currentSpace->upRight->team != Team && currentSpace->upRight->occupied == true))
+            {
+                downLeftClear = true;
+            }
+        }
+        if(currentSpace->downRight != NULL)
+        {
+            if(currentSpace->downRight->name == "_" || (currentSpace->downRight->team != Team && currentSpace->downRight->occupied == true))
+            {
+                upLeftClear = true;
+            }
+        }
+        if(currentSpace->downLeft != NULL)
+        {
+            if(currentSpace->downLeft->name == "_" || (currentSpace->downLeft->team != Team && currentSpace->downLeft->occupied == true))
+            {
+                upRightClear = true;
+            }
+        }
+        if(upRightClear == false && upLeftClear == false && downRightClear == false && downLeftClear == false
+           && upClear == false && downClear == false && rightClear == false && leftClear == false)
+        {
+            cout<<"Piece has nowhere to move."<<endl;
+            turnComplete = false;
+            return turnComplete;
+        }
+
+
+        string Input;
+        cout<<"Where would you like to move your Rook?"<<endl;
+
+        cout<<"You may move";
+        if(leftClear == true && currentSpace->right != beginning)
+        {
+            cout<<" ⇐,";
+        }
+        if(upLeftClear == true)
+        {
+            cout<<" ⇖,";
+        }
+        if(upClear == true)
+        {
+            cout<<" ⇑,";
+        }
+        if(upRightClear == true)
+        {
+            cout<<" ⇗,";
+        }
+        if(rightClear == true&& currentSpace->right != ending)
+        {
+            cout<<" ⇒,";
+        }
+        if(downRightClear == true)
+        {
+            cout<<" ⇘,";
+        }
+        if(downClear == true)
+        {
+            cout<<" ⇓,";
+        }
+        if(downLeftClear == true)
+        {
+            cout<<" or ⇙.";
+        }
+
+        cout<<endl<<"Press";
+
+        if(leftClear == true && currentSpace->right != beginning)
+        {
+            cout<<" 4 for ⇐,";
+        }
+        if(upLeftClear == true)
+        {
+            cout<<" 7 for ⇖,";
+        }
+        if(upClear == true)
+        {
+            cout<<" 8 for ⇑,";
+        }
+        if(upRightClear == true)
+        {
+            cout<<" 9 for ⇗,";
+        }
+        if(rightClear == true && currentSpace->right != ending)
+        {
+            cout<<" 6 for ⇒,";
+        }
+        if(downRightClear == true)
+        {
+            cout<<" 3 for ⇘,";
+        }
+        if(downClear == true)
+        {
+            cout<<" 2 for ⇓,";
+        }
+        if(downLeftClear == true)
+        {
+            cout<<" or 1 for ⇙.";
+        }
+        cout<<endl;
+        cin>>ws;
+        getline(cin, Input);
+        int input = stoi(Input);
+        cout<<"How many spaces do you what to move? : ";
+        string Input2;
+        cin>>ws;
+        getline(cin, Input2);
+        int input2 = stoi(Input2);
+        boardSpace* MoveTo = new boardSpace;
+        MoveTo = currentSpace;
+        bool inWay = false;
+        if(input == 8 && upClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->down;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->down;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 4 && leftClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->right;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->right;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 6 && rightClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->left;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->left;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 2 && downClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->up;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->up;
+            }
+
+            if(inWay == false && MoveTo->team != Team)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        if(input == 7 && upLeftClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->downRight;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->downRight;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 9 && upRightClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->downLeft;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->downLeft;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 6 && downLeftClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->upRight;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->upRight;
+            }
+
+            if(inWay == false)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else if(input == 2 && downRightClear == 1)
+        {
+            for(int i = 0; i < input2-1; i++)
+            {
+                MoveTo = MoveTo->upLeft;
+                if(MoveTo->occupied == true || MoveTo == NULL)
+                {
+                    inWay= true;
+                    break;
+                }
+            }
+            if(MoveTo != NULL)
+            {
+                MoveTo = MoveTo->upLeft;
+            }
+
+            if(inWay == false && MoveTo->team != Team)
+            {
+                MoveTo->name = currentSpace->name;
+                MoveTo->occupied = true;
+                MoveTo->team = currentSpace->team;
+                currentSpace->name = "_";
+                currentSpace->occupied = false;
+                currentSpace->team = "NULL";
+                return turnComplete;
+            }
+            else
+            {
+                cout<<"Not a valid move."<<endl;
+                turnComplete = false;
+                return turnComplete;
+            }
+        }
+        else
+        {
+            cout<<"Not a valid move."<<endl;
+            turnComplete = false;
+            return turnComplete;
+        }
+    }
+}
+/* King Comment Block
+Function Prototype:
+bool Chess::King(string, boardSpace*, int);
+
+Function Description:
+This function is written to illustrate all possible moves that a king can make. The function allows
+pawns to move one space forward, backward, left, right, and diagonal (in all directions). It also allows
+the king to attack if an enemy piece is within range.
+
+Example:
+Chess *NewGame = new Chess();
+NewGame->King(Team1, inSpot, 1);
+
+Pre-condition: This function requires three pre-conditions to be met. The first, the input string name is
+the name of the team that is playing in that turn. The second, the input boardSpace pointer is the space
+on the board where the chess piece resides. This will also be used to check all possible moves for
+this piece. The third, the input integer is the counter telling us which team is in play. Each chess piece function
+requires two additional pointers to be set: beginning and ending. These are set to NULL inside the constructor.
+
+Post-condition: Once this function has run through, the king will either have moved one space in all directions or it
+will attack an enemy piece if it is within range. Pointers and struct attributes will be updated after each successive
+move.
+*/
+bool Chess::King(std::string Team, boardSpace* currentSpace , int teamCount)
+{
+    //Set initial bool checks to false. These will be used to check if a space is clear or not.
+    bool upClear = false;
+    bool upRightClear = false;
+    bool upLeftClear = false;
+
+    bool leftClear = false;
+    bool rightClear = false;
+
+    bool downClear = false;
+    bool downRightClear = false;
+    bool downLeftClear = false;
+
+    //Bool to tell program whether or not to switch player turn.
+    bool turnComplete = true;
+
+    //If team one is in play, do the following:
+    if(teamCount == 1)
+    {
+        //Check if up is clear. If so, set bool to true.
+        if(currentSpace->up != NULL)
+        {
+            if(currentSpace->upLeft->name == "_"|| (currentSpace->up->team != Team && currentSpace->up->occupied == true))
+            {
+                upClear = true;
+            }
+        }
+        //Check if down is clear. If so, set bool to true.
+        if(currentSpace->down != NULL)
+        {
+            if(currentSpace->down->name == "_"|| (currentSpace->down->team != Team && currentSpace->down->occupied == true))
+            {
+                downClear = true;
+            }
+        }
+        //Check if up and to the left is clear. If so, set bool to true.
+        if(currentSpace->upLeft != NULL)
+        {
+            if(currentSpace->upLeft->name == "_" || (currentSpace->upLeft->team != Team && currentSpace->upLeft->occupied == true))
+            {
+                upLeftClear = true;
+            }
+        }
+        //Check if up and to the right is clear. If so, set bool to true.
+        if(currentSpace->upRight != NULL)
+        {
+            if(currentSpace->upRight->name == "_" || (currentSpace->upRight->team != Team && currentSpace->upRight->occupied == true))
+            {
+                upRightClear = true;
+            }
+        }
+        //Check if right is clear. If so, set bool to true.
+        if(currentSpace->right != NULL)
+        {
+            if(currentSpace->right->name == "_" || (currentSpace->right->team != Team && currentSpace->right->occupied == true))
+            {
+                rightClear = true;
+            }
+        }
+        //Check if left is clear. If so, set bool to true.
+        if(currentSpace->left != NULL)
+        {
+            if(currentSpace->left->name == "_" || (currentSpace->left->team != Team && currentSpace->left->occupied == true))
+            {
+                leftClear = true;
+            }
+        }
+        //Check if down and to the left is clear. If so, set bool to true.
+        if(currentSpace->downLeft != NULL)
+        {
+            if(currentSpace->downLeft->name == "_" || (currentSpace->downLeft->team != Team && currentSpace->downLeft->occupied == true))
+            {
+                downLeftClear = true;
+            }
+        }
+        //Check if down and to the right is clear. If so, set bool to true.
+        if(currentSpace->downRight != NULL)
+        {
+            if(currentSpace->downRight->name == "_" || (currentSpace->downRight->team != Team && currentSpace->downRight->occupied == true))
+            {
+                downRightClear = true;
+            }
+        }
+        //If all spots are not clear, inform user.
+        if(leftClear == false && upLeftClear == false && upClear == false && upRightClear == false && rightClear == false && downRightClear == false && downClear == false && downLeftClear == false)
+        {
+            cout<<"Piece has nowhere to move."<<endl;
+            turnComplete = false;
+            return turnComplete;
+        }
+
+        string Input;
+        cout<<"Where would you like to move your King?"<<endl;
+
+        //Options to tell the user where they are able to move. Indicated by arrows.
+        cout<<"You may move";
+        if(leftClear == true)
+        {
+            cout<<" ⇐,";
+        }
+        if(upLeftClear == true)
+        {
+            cout<<" ⇖,";
+        }
+        if(upClear == true)
+        {
+            cout<<" ⇑,";
+        }
+        if(upRightClear == true)
+        {
+            cout<<" ⇗,";
+        }
+        if(rightClear == true)
+        {
+            cout<<" ⇒,";
+        }
+        if(downRightClear == true)
+        {
+            cout<<" ⇘,";
+        }
+        if(downClear == true)
+        {
+            cout<<" ⇓,";
+        }
+        if(downLeftClear == true)
+        {
+            cout<<" or ⇙.";
+        }
+
+        //Take in the user move input using number pad directions.
+        cout<<endl<<"Press";
+        if(leftClear == true)
+        {
+            cout<<" 4 for ⇐,";
+        }
+        if(upLeftClear == true)
+        {
+            cout<<" 7 for ⇖,";
+        }
+        if(upClear == true)
+        {
+            cout<<" 8 for ⇑,";
+        }
+        if(upRightClear == true)
+        {
+            cout<<" 9 for ⇗,";
+        }
+        if(rightClear == true)
+        {
+            cout<<" 6 for ⇒,";
+        }
+        if(downRightClear == true)
+        {
+            cout<<" 3 for ⇘,";
+        }
+        if(downClear == true)
+        {
+            cout<<" 2 for ⇓,";
+        }
+        if(downLeftClear == true)
+        {
+            cout<<" 1 for ⇙.";
+        }
+
+        cout<<endl;
+        cin>>ws;
+        getline(cin, Input);
+        int input = stoi(Input);
+
+        //If the user wants to move to the left, do the following:
+        if(input == 4 && leftClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->left->name = currentSpace->name;
+            currentSpace->left->occupied = true;
+            currentSpace->left->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move up and to the left, do the following:
+        else if(input == 7 && upLeftClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->upLeft->name = currentSpace->name;
+            currentSpace->upLeft->occupied = true;
+            currentSpace->upLeft->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move up, do the following:
+        else if(input == 8 && upClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->up->name = currentSpace->name;
+            currentSpace->up->occupied = true;
+            currentSpace->up->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move up and to the right, do the following:
+        else if(input == 9 && upRightClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->upRight->name = currentSpace->name;
+            currentSpace->upRight->occupied = true;
+            currentSpace->upRight->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move to the right, do the following:
+        else if(input == 6 && rightClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->right->name = currentSpace->name;
+            currentSpace->right->occupied = true;
+            currentSpace->right->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move down and to the right, do the following:
+        else if(input == 3 && downRightClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->downRight->name = currentSpace->name;
+            currentSpace->downRight->occupied = true;
+            currentSpace->downRight->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move down, do the following:
+        else if(input == 2 && downClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->down->name = currentSpace->name;
+            currentSpace->down->occupied = true;
+            currentSpace->down->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move down and to the left, do the following:
+        else if(input == 1 && downLeftClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->downLeft->name = currentSpace->name;
+            currentSpace->downLeft->occupied = true;
+            currentSpace->downLeft->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the input is not correct, inform user.
+        else
+        {
+            cout<<"Not a valid move."<<endl;
+            turnComplete = false;
+            return turnComplete;
+        }
+    }
+
+    //If team two is in play, do the following:
+    if(teamCount == 2)
+    {
+        //Board has flipped, so directions are now opposite.
+        //Check if up is clear. If so, set down to true.
+        if(currentSpace->up != NULL)
+        {
+            if(currentSpace->upLeft->name == "_"|| (currentSpace->up->team != Team && currentSpace->up->occupied == true))
+            {
+                downClear = true;
+            }
+        }
+        //Check if down is clear. If so, set up to true.
+        if(currentSpace->down != NULL)
+        {
+            if(currentSpace->down->name == "_"|| (currentSpace->down->team != Team && currentSpace->down->occupied == true))
+            {
+                upClear = true;
+            }
+        }
+        //Check if up and to the left is clear. If so, set down and to the right to true.
+        if(currentSpace->upLeft != NULL)
+        {
+            if(currentSpace->upLeft->name == "_" || (currentSpace->upLeft->team != Team && currentSpace->upLeft->occupied == true))
+            {
+                downRightClear = true;
+            }
+        }
+        //Check if up and to the right is clear. If so, set down and to the left to true.
+        if(currentSpace->upRight != NULL)
+        {
+            if(currentSpace->upRight->name == "_" || (currentSpace->upRight->team != Team && currentSpace->upRight->occupied == true))
+            {
+                downLeftClear = true;
+            }
+        }
+        //Check if right is clear. If so, set left to true.
+        if(currentSpace->right != NULL)
+        {
+            if(currentSpace->right->name == "_" || (currentSpace->right->team != Team && currentSpace->right->occupied == true))
+            {
+                leftClear = true;
+            }
+        }
+        //Check if left is clear. If so, set right to true.
+        if(currentSpace->left != NULL)
+        {
+            if(currentSpace->left->name == "_" || (currentSpace->left->team != Team && currentSpace->left->occupied == true))
+            {
+                rightClear = true;
+            }
+        }
+        //Check if down and to the left is clear. If so, set up and to the right to true.
+        if(currentSpace->downLeft != NULL)
+        {
+            if(currentSpace->downLeft->name == "_" || (currentSpace->downLeft->team != Team && currentSpace->downLeft->occupied == true))
+            {
+                upRightClear = true;
+            }
+        }
+        //Check if down and to the right is clear. If so, set up and to the left to true.
+        if(currentSpace->downRight != NULL)
+        {
+            if(currentSpace->downRight->name == "_" || (currentSpace->downRight->team != Team && currentSpace->downRight->occupied == true))
+            {
+                upLeftClear = true;
+            }
+        }
+        //If all spots are not clear, inform user.
+        if(leftClear == false && upLeftClear == false && upClear == false && upRightClear == false && rightClear == false && downRightClear == false && downClear == false && downLeftClear == false)
+        {
+            cout<<"Piece has nowhere to move."<<endl;
+            turnComplete = false;
+            return turnComplete;
+        }
+
+        string Input;
+        cout<<"Where would you like to move your King?"<<endl;
+
+        //Options to tell the user where they are able to move. Indicated by arrows.
+        cout<<"You may move";
+        if(leftClear == true)
+        {
+            cout<<" ⇐,";
+        }
+        if(upLeftClear == true)
+        {
+            cout<<" ⇖,";
+        }
+        if(upClear == true)
+        {
+            cout<<" ⇑,";
+        }
+        if(upRightClear == true)
+        {
+            cout<<" ⇗,";
+        }
+        if(rightClear == true)
+        {
+            cout<<" ⇒,";
+        }
+        if(downRightClear == true)
+        {
+            cout<<" ⇘,";
+        }
+        if(downClear == true)
+        {
+            cout<<" ⇓,";
+        }
+        if(downLeftClear == true)
+        {
+            cout<<" or ⇙.";
+        }
+
+        //Take in the user move input using number pad directions.
+        cout<<endl<<"Press";
+        if(leftClear == true)
+        {
+            cout<<" 4 for ⇐,";
+        }
+        if(upLeftClear == true)
+        {
+            cout<<" 7 for ⇖,";
+        }
+        if(upClear == true)
+        {
+            cout<<" 8 for ⇑,";
+        }
+        if(upRightClear == true)
+        {
+            cout<<" 9 for ⇗,";
+        }
+        if(rightClear == true)
+        {
+            cout<<" 6 for ⇒,";
+        }
+        if(downRightClear == true)
+        {
+            cout<<" 3 for ⇘,";
+        }
+        if(downClear == true)
+        {
+            cout<<" 2 for ⇓,";
+        }
+        if(downLeftClear == true)
+        {
+            cout<<" 1 for ⇙.";
+        }
+
+        cout<<endl;
+        cin>>ws;
+        getline(cin, Input);
+        int input = stoi(Input);
+
+        //If the user wants to move to the left, do the following:
+        if(input == 4 && leftClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->right->name = currentSpace->name;
+            currentSpace->right->occupied = true;
+            currentSpace->right->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move up and to the left, do the following:
+        else if(input == 7 && upLeftClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->downRight->name = currentSpace->name;
+            currentSpace->downRight->occupied = true;
+            currentSpace->downRight->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move up, do the following:
+        else if(input == 8 && upClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->down->name = currentSpace->name;
+            currentSpace->down->occupied = true;
+            currentSpace->down->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move up and to the right, do the following:
+        else if(input == 9 && upRightClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->downLeft->name = currentSpace->name;
+            currentSpace->downLeft->occupied = true;
+            currentSpace->downLeft->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move to the right, do the following:
+        else if(input == 6 && rightClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->left->name = currentSpace->name;
+            currentSpace->left->occupied = true;
+            currentSpace->left->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move down and to the right, do the following:
+        else if(input == 3 && downRightClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->upLeft->name = currentSpace->name;
+            currentSpace->upLeft->occupied = true;
+            currentSpace->upLeft->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move down, do the following:
+        else if(input == 2 && downClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->up->name = currentSpace->name;
+            currentSpace->up->occupied = true;
+            currentSpace->up->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the user wants to move down and to the left, do the following:
+        else if(input == 1 && downLeftClear == 1)
+        {
+            //Move the piece to the new spot and set the appropriate attributes.
+            currentSpace->upRight->name = currentSpace->name;
+            currentSpace->upRight->occupied = true;
+            currentSpace->upRight->team = currentSpace->team;
+            //Set the old space to NULL.
+            currentSpace->name = "_";
+            currentSpace->occupied = false;
+            currentSpace->team = "NULL";
+            //End turn.
+            return turnComplete;
+        }
+        //If the input is not correct, inform user.
+        else
+        {
+            cout<<"Not a valid move."<<endl;
+            turnComplete = false;
+            return turnComplete;
+        }
+    }
+}
+
+/* Pawn Switch Out function
+
+Function Prototype:
+void Chess::PawnSwitchOut(std::string Team, boardSpace* currentSpace , int teamCount);
+
+Function Description:
+This function is activated when a pawn of team A reaches the end of tean B's side. This allows team A to change their
+pawn to a Queen, Bishop, Rook, or Knight.
+
+Example:
+
+NewGame->PawnSwitchOut(team1, (a5)spot, 1);
+
+Pre-condition:
+We need to know the pawns team name, the spot that it has reached, and the team number.
+
+Post-condition: The piece will become the chosen piece
+*/
 void Chess::PawnSwitchOut(boardSpace* pawnSpot,std::string Team1, int teamCount)
 {
-
+    //ZACH
     char X = pawnSpot->boardSpot[0];
+    //if it has reached the a row or the h row.
     if((X == 'a' && teamCount == 1) || (X == 'h' && teamCount == 2))
     {
         cout<<endl<<"You made a pawn to the other end!"<<endl;
@@ -2594,6 +4525,8 @@ void Chess::PawnSwitchOut(boardSpace* pawnSpot,std::string Team1, int teamCount)
                     cout<<"Not a valid option."<<endl;
                 }
             }
+
+
         }
     }
 }
