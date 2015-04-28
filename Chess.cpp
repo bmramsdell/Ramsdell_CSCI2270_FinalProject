@@ -97,7 +97,6 @@ boardSpace* Chess::newSpace(std::string placement)
     return newSpot;
 }
 
-//ZACH
 void Chess::createBoard(std::string Team1, std::string Team2)
 {
     int index = 2;
@@ -571,7 +570,6 @@ void Chess::team2Board()
     cout<<"    "<<endl;
 }
 
-//ZACH
 void Chess::PlayerTurn(std::string Team1, std::string Team2)
 {
     int teamCounter = 1;
@@ -800,7 +798,6 @@ void Chess::PlayerTurn(std::string Team1, std::string Team2)
     cout<<"The Winner is "<<Winner<<"!";
 }
 
-//ZACH
 boardSpace* Chess::SearchSpot(std::string SPOT)
 {
     std::string tempWord;
@@ -845,7 +842,6 @@ boardSpace* Chess::SearchSpot(std::string SPOT)
     return temp;
 }
 
-//ZACH
 bool Chess::checkForKing(std::string KING)
 {
     bool found = false;
@@ -886,19 +882,16 @@ bool Chess::checkForKing(std::string KING)
     return found;
 }
 
-//ZACH
 bool Chess::Bishop(string Team, boardSpace *currentSpace, int teamCount)
 {
 
 }
 
-//ZACH
 bool Chess::Rook(string Team, boardSpace *currentSpace, int teamCount)
 {
 
 }
 
-//ZACH
 bool Chess::Queen(string Team, boardSpace *currentSpace, int teamCount)
 {
 
@@ -2531,7 +2524,6 @@ bool Chess::Knight(std::string Team, boardSpace* currentSpace , int teamCount)
     }
 }
 
-//ZACH
 void Chess::PawnSwitchOut(boardSpace* pawnSpot,std::string Team1, int teamCount)
 {
 
