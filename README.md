@@ -8,7 +8,7 @@ For our project we will create a set of algorithms that will allow users to play
 
 How to Run:
 
-This program is no different than any homework assignment we have done this semester. In order to run the program, contributors will simply download the files, add them to a new project in Code::Blocks, and run the program while following the directions prompted by the program itself. 
+This program is no different than any homework assignment we have done this semester. In order to run the program, contributors will simply download the files, add them to a new project in Code::Blocks, and run the program while following the directions prompted by the program itself. Users and contributors should use the main.cpp driver file and NOT the FinalProject.cpp file. Sorry for the confusion!
 
 Dependencies:
 
